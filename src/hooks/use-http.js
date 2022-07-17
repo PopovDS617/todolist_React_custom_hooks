@@ -1,10 +1,10 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 
-const useHttp = ({ requestConfig }, applyData) => {
+const useHttp = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState(null);
 
-  const sendRequest = async () => {
+  const sendRequest = useCallback(async (requestConfig, applyData) => {
     // для реюзабильности бОльшая часть данных будет передаваться из компонента
     setIsLoading(true);
     setError(null);
@@ -15,23 +15,25 @@ const useHttp = ({ requestConfig }, applyData) => {
         headers: requestConfig.headers ? requestConfig.headers : {},
         body: requestConfig.body ? JSON.stringify(requestConfig.body) : null,
       });
-
+      console.log(response);
       if (!response.ok) {
         throw new Error("Request failed!");
       }
 
       const data = await response.json();
+      console.log(data);
 
       applyData(data);
     } catch (err) {
       setError(err.message || "Something went wrong!");
     }
     setIsLoading(false);
-  };
+  }, []);
+
   return {
-    isLoading,
-    error,
-    sendRequest,
+    isLoading: isLoading,
+    error: error,
+    sendRequest: sendRequest,
   };
 };
 
